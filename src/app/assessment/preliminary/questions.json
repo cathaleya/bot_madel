@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "dim": "C1",
+    "text": "Saya dapat membedakan sumber informasi digital yang kredibel dan tidak kredibel untuk keperluan akademik."
+  },
+  {
+    "id": 2,
+    "dim": "C1",
+    "text": "Saya memeriksa keakuratan informasi digital sebelum menggunakannya dalam tugas kuliah."
+  },
+  {
+    "id": 3,
+    "dim": "C1",
+    "text": "Saya mengelola file dan dokumen digital (materi, referensi, data) secara teratur."
+  },
+  {
+    "id": 4,
+    "dim": "C1",
+    "text": "Saya menggunakan informasi atau data digital sebagai dasar pengambilan keputusan akademik."
+  },
+  {
+    "id": 5,
+    "dim": "C2",
+    "text": "Saya berkomunikasi secara sopan dan profesional melalui media digital akademik (email, LMS, forum)."
+  },
+  {
+    "id": 6,
+    "dim": "C2",
+    "text": "Saya berkolaborasi dengan teman menggunakan aplikasi digital saat mengerjakan tugas kelompok."
+  },
+  {
+    "id": 7,
+    "dim": "C2",
+    "text": "Saya berbagi sumber belajar digital dengan mempertimbangkan etika akademik."
+  },
+  {
+    "id": 8,
+    "dim": "C2",
+    "text": "Saya menyesuaikan gaya komunikasi digital sesuai konteks akademik."
+  },
+  {
+    "id": 9,
+    "dim": "C3",
+    "text": "Saya mampu membuat konten digital (presentasi, video, infografis) untuk mendukung pembelajaran."
+  },
+  {
+    "id": 10,
+    "dim": "C3",
+    "text": "Saya mampu mengadaptasi konten digital dari berbagai sumber secara kreatif."
+  },
+  {
+    "id": 11,
+    "dim": "C3",
+    "text": "Saya memahami prinsip hak cipta dalam penggunaan konten digital."
+  },
+  {
+    "id": 12,
+    "dim": "C3",
+    "text": "Saya mampu merancang bahan ajar digital sesuai kebutuhan peserta didik."
+  },
+  {
+    "id": 13,
+    "dim": "C4",
+    "text": "Saya menjaga keamanan akun digital dengan kata sandi dan pengaturan privasi yang tepat."
+  },
+  {
+    "id": 14,
+    "dim": "C4",
+    "text": "Saya berhati-hati dalam membagikan data pribadi di platform digital akademik."
+  },
+  {
+    "id": 15,
+    "dim": "C4",
+    "text": "Saya mampu mengenali dan menghindari konten digital berbahaya (hoaks, phishing)."
+  },
+  {
+    "id": 16,
+    "dim": "C4",
+    "text": "Saya berperilaku etis dan bertanggung jawab di ruang digital."
+  },
+  {
+    "id": 17,
+    "dim": "C5",
+    "text": "Saya mampu mengatasi masalah teknis sederhana saat menggunakan perangkat atau aplikasi digital."
+  },
+  {
+    "id": 18,
+    "dim": "C5",
+    "text": "Saya dapat memilih teknologi digital yang paling sesuai untuk kebutuhan pembelajaran."
+  },
+  {
+    "id": 19,
+    "dim": "C5",
+    "text": "Saya menyadari keterbatasan kompetensi digital saya dan berupaya meningkatkannya."
+  },
+  {
+    "id": 20,
+    "dim": "C5",
+    "text": "Saya terbuka terhadap penggunaan teknologi baru untuk meningkatkan efektivitas belajar."
+  }
+]

@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  campus       String
+  gender       String
+  origin       String   @default("")
+  specialNeeds String   @default("tidak")
+  createdAt    DateTime @default(now())
+
+  assessments Assessment[]
+  surveys     Survey[]
+}
+
+model Assessment {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  type        String   // 'PDI-DL' or 'MADEL5C'
+  totalScore  Int
+  answersJson String   // JSON string of answers
+  createdAt   DateTime @default(now())
+}
+
+model Survey {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  totalScore  Int
+  answersJson String   // JSON string of 10 SUS answers
+  feedback    String?  // Qualitative feedback from user
+  createdAt   DateTime @default(now())
+}

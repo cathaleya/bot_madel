@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hdap-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-Faithbless21}
+      POSTGRES_DB: hdap
+    ports:
+      # Bind port 5432 hanya ke localhost (127.0.0.1) agar aman dari luar
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hdap-app
+    restart: always
+    depends_on:
+      - db
+    ports:
+      # Bind port 3000 hanya ke localhost (127.0.0.1) agar tidak bisa diakses langsung lewat IP publik
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL agar menunjuk ke container database
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-Faithbless21}@db:5432/hdap?schema=public
+      NODE_ENV: production
+
+volumes:
+  postgres_data:
+    driver: local
