@@ -1,13 +1,11 @@
 /**
  * BOT OTOMATIS PENGISIAN INSTRUMEN RESEARCH (PDI-DL, MADEL5C, SUS)
  * -----------------------------------------------------------------
- * Fitur Utama:
- * 1. Menghasilkan 350 nama responden unik & realistis (Indonesia).
- * 2. Distribusi skor humanis berbasis Psikometri / Normal Distribution (IRT theta).
- * 3. Jeda waktu acak 10-15 menit antar user (simulasi aktivitas manusia nyata).
- * 4. Pembagian jadwal selama 1 minggu (7 hari, misal: 35, 15, 56, 64, 50, 65, 65 user/hari).
- * 5. Alur berurutan tanpa terlewat: Register User -> PDI-DL -> MADEL5C -> SUS.
- * 6. Menyimpan state ke 'bot_progress.json' agar bisa di-resume jika VPS restart.
+ * PER USER SEQUENTIAL DELAY:
+ * 1. Bot memproses 1 USER secara penuh (Register -> PDI-DL -> MADEL5C -> SUS).
+ * 2. Setelah 1 USER selesai, bot ISTIRAHAT / DELAY 10 s/d 15 MENIT.
+ * 3. Setelah jeda 10-15 menit berlalu, bot baru memproses USER BERIKUTNYA.
+ * 4. Sama sekali TIDAK SERENTAK (Murni 1 user per 10-15 menit).
  */
 
 const fs = require('fs');
@@ -23,9 +21,9 @@ const PROGRESS_FILE = path.join(__dirname, 'bot_progress.json');
 const QUESTIONS_MADEL_PATH = path.join(__dirname, '../src/app/assessment/madel5c/questions.json');
 const QUESTIONS_PRELIM_PATH = path.join(__dirname, '../src/app/assessment/preliminary/questions.json');
 
-// Pengaturan Jeda (dalam menit)
-const MIN_DELAY_MINUTES = process.env.FAST_MODE ? 0.05 : 10; // 10 menit
-const MAX_DELAY_MINUTES = process.env.FAST_MODE ? 0.1 : 15;  // 15 menit
+// Pengaturan Jeda Per User (dalam menit)
+const MIN_DELAY_MINUTES = process.env.FAST_MODE ? 0.05 : 10; // 10 menit per user
+const MAX_DELAY_MINUTES = process.env.FAST_MODE ? 0.1 : 15;  // 15 menit per user
 
 // Jadwal 7 Hari (Total 350 Responden)
 const DAILY_SCHEDULE = [35, 15, 56, 64, 50, 65, 65]; 
@@ -180,10 +178,10 @@ function saveState(state) {
 // ==========================================
 async function runBot() {
   console.log("==================================================");
-  console.log("  BOT AUTOMASI PENGISIAN INSTRUMEN (MADEL5C/PDI/SUS)");
+  console.log("  BOT AUTOMASI PENGISIAN INSTRUMEN (SEKUENSIAL PER USER)");
   console.log("==================================================");
   console.log(`Target URL: ${BASE_URL}`);
-  console.log(`Jeda Waktu: ${MIN_DELAY_MINUTES} s/d ${MAX_DELAY_MINUTES} menit per responden\n`);
+  console.log(`Pengaturan Jeda: 10 s/d 15 MENIT DITERAPKAN PER INDIVIDUAL USER.\n`);
 
   // Load questions
   let madelQ = [];
@@ -206,12 +204,14 @@ async function runBot() {
 
   for (let dayIdx = 0; dayIdx < DAILY_SCHEDULE.length; dayIdx++) {
     const quotaToday = DAILY_SCHEDULE[dayIdx];
+    console.log(`\n==================================================`);
     console.log(`--- PERIODE HARI KE-${dayIdx + 1} (Target: ${quotaToday} user) ---`);
+    console.log(`==================================================\n`);
 
     for (let u = 0; u < quotaToday; u++) {
       const userIndexGlobal = state.completedUsers + 1;
       if (userIndexGlobal > totalTarget) {
-        console.log("Semua target 350 user telah selesai!");
+        console.log("🎉 Semua target 350 user telah selesai!");
         return;
       }
 
@@ -224,7 +224,7 @@ async function runBot() {
       // 1. Ability latent theta (mean 0.3, SD 0.7 - realistic human range)
       const theta = randn_bm() * 0.7 + 0.3;
 
-      console.log(`[${userIndexGlobal}/${totalTarget}] [Hari ${dayIdx + 1}] Memproses Responden: ${name} (${gender}, ${campus})...`);
+      console.log(`👤 [USER ${userIndexGlobal}/${totalTarget}] Memproses Responden SEORANG DIRI: ${name} (${gender}, ${campus})...`);
 
       try {
         // STEP 1: Registrasi Profil User
@@ -236,7 +236,7 @@ async function runBot() {
           specialNeeds
         });
         const userId = authRes.userId;
-        console.log(`  ✓ 1/3 Registrasi Profil Berhasil (User ID: ${userId})`);
+        console.log(`  ✓ 1/4 Registrasi Profil Berhasil (User ID: ${userId})`);
 
         // Jeda antarlangkah kecil (simulasi membaca soal 1-3 detik)
         await sleep(1500);
@@ -257,7 +257,7 @@ async function runBot() {
           totalScore: totalPrelim,
           answersJson: prelimAnswers
         });
-        console.log(`  ✓ 2/3 Asesmen PDI-DL Terisi (Skor Total: ${totalPrelim})`);
+        console.log(`  ✓ 2/4 Asesmen PDI-DL Terisi (Skor Total: ${totalPrelim})`);
 
         await sleep(2000);
 
@@ -281,7 +281,7 @@ async function runBot() {
           totalScore: totalMadel,
           answersJson: madelAnswers
         });
-        console.log(`  ✓ 3/3 Asesmen MADEL5C Terisi (Skor Total: ${totalMadel})`);
+        console.log(`  ✓ 3/4 Asesmen MADEL5C Terisi (Skor Total: ${totalMadel})`);
 
         await sleep(2000);
 
@@ -313,12 +313,14 @@ async function runBot() {
         state.users.push({ userId, name, gender, campus, totalMadel, totalPrelim, susTotalScore, timestamp: new Date().toISOString() });
         saveState(state);
 
-        // Jeda Acak Antar User (10 - 15 Menit)
+        console.log(`  ✅ USER ${userIndexGlobal} (${name}) SELESAI PENGISIAN 3 INSTRUMEN.`);
+
+        // JEDA ACAK 10-15 MENIT PER INDIVIDUAL USER
         if (state.completedUsers < totalTarget) {
           const delayMinutes = MIN_DELAY_MINUTES + Math.random() * (MAX_DELAY_MINUTES - MIN_DELAY_MINUTES);
           const delayMs = Math.round(delayMinutes * 60 * 1000);
           const nextTime = new Date(Date.now() + delayMs).toLocaleTimeString('id-ID');
-          console.log(`  ⏳ Menunggu jeda ${delayMinutes.toFixed(2)} menit... (Responden berikutnya pukul ${nextTime})\n`);
+          console.log(`  ⏳ ISTIRAHAT: Menunggu jeda ${delayMinutes.toFixed(2)} menit sebelum USER BERIKUTNYA (${userIndexGlobal + 1}) mulai pada pukul ${nextTime}...\n`);
           await sleep(delayMs);
         }
 
@@ -331,7 +333,7 @@ async function runBot() {
   }
 
   console.log("\n==================================================");
-  console.log(`🎉 SELAMAT! Seluruh 350 responden telah berhasil terisi secara otomatis.`);
+  console.log(`🎉 SELAMAT! Seluruh 350 responden telah berhasil terisi secara berurutan.`);
   console.log("==================================================");
 }
 
