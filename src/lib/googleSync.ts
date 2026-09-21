@@ -29,15 +29,28 @@ export async function syncToGoogleSheets(data: {
   if (Array.isArray(formattedAnswers)) {
     formattedAnswers = formattedAnswers.map((item: any) => {
       if (typeof item === 'object' && item !== null) {
-        return item.score !== undefined ? item.score : (item.val || item.value || JSON.stringify(item));
+        if (item.score !== undefined) return Number(item.score);
+        if (item.value !== undefined) return Number(item.value);
+        if (item.val !== undefined) return Number(item.val);
       }
-      return item;
+      const parsed = Number(item);
+      return isNaN(parsed) ? item : parsed;
+    });
+  }
+
+  // Create explicit q1..q30 and Q1..Q30 properties in case Google Apps Script expects key-value properties
+  const extraQFields: Record<string, any> = {};
+  if (Array.isArray(formattedAnswers)) {
+    formattedAnswers.forEach((val, idx) => {
+      extraQFields[`q${idx + 1}`] = val;
+      extraQFields[`Q${idx + 1}`] = val;
     });
   }
 
   try {
     const payload = {
       ...data,
+      ...extraQFields,
       answers: formattedAnswers
     };
 
