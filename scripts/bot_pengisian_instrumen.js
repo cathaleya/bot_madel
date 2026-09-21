@@ -261,7 +261,7 @@ async function runBot() {
           if (pScore > 5) pScore = 5;
           if (pScore < 1) pScore = 1;
           totalPrelim += pScore;
-          return { questionId: q.id, score: pScore };
+          return pScore;
         });
 
         await sendPostRequest('/api/assessment', {
@@ -286,7 +286,7 @@ async function runBot() {
           if (scoreIdx < 0) scoreIdx = 0;
           const pickedScore = scores[scoreIdx];
           totalMadel += pickedScore;
-          return { questionId: q.id, score: pickedScore };
+          return pickedScore;
         });
 
         await sendPostRequest('/api/assessment', {
@@ -310,7 +310,7 @@ async function runBot() {
           let finalScore = raw;
           if (qNum % 2 === 0) finalScore = 6 - raw; // Reverse coding for even items
           susTotalRaw += (qNum % 2 !== 0) ? (finalScore - 1) : (5 - finalScore);
-          return { questionId: qNum, score: finalScore };
+          return finalScore;
         });
         const susTotalScore = susTotalRaw * 2.5;
         const feedback = FEEDBACK_LIST[Math.floor(Math.random() * FEEDBACK_LIST.length)];
