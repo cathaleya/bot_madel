@@ -3,9 +3,9 @@
  * -----------------------------------------------------------------
  * PER USER SEQUENTIAL DELAY:
  * 1. Bot memproses 1 USER secara penuh (Register -> PDI-DL -> MADEL5C -> SUS).
- * 2. Setelah 1 USER selesai, bot ISTIRAHAT / DELAY 10 s/d 15 MENIT.
- * 3. Setelah jeda 10-15 menit berlalu, bot baru memproses USER BERIKUTNYA.
- * 4. Sama sekali TIDAK SERENTAK (Murni 1 user per 10-15 menit).
+ * 2. Menggunakan jeda humanis 5-8 detik antar-instrumen (simulasi membaca/mengisi).
+ * 3. Setelah 1 USER selesai 3 instrumen, bot ISTIRAHAT 10 s/d 15 MENIT.
+ * 4. Menyimpan state ke 'bot_progress.json' agar bisa di-resume.
  */
 
 const fs = require('fs');
@@ -17,7 +17,6 @@ const https = require('https');
 // KONFIGURASI BOT
 // ==========================================
 let BASE_URL = process.env.TARGET_URL || 'http://localhost:3000';
-// Otomatis pastikan HTTPS jika domain madel5c.com
 if (BASE_URL.includes('madel5c.com') && !BASE_URL.startsWith('https://')) {
   BASE_URL = BASE_URL.replace('http://', 'https://');
 }
@@ -136,7 +135,6 @@ function sendPostRequest(endpoint, payload, currentBaseUrl = BASE_URL) {
     };
 
     const req = (url.protocol === 'https:' ? https : http).request(options, (res) => {
-      // Handle 301 / 302 Redirect (e.g. HTTP to HTTPS)
       if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
         let redirectUrl = res.headers.location;
         if (!redirectUrl.startsWith('http')) {
@@ -236,7 +234,7 @@ async function runBot() {
       const origin = ORIGINS[Math.floor(Math.random() * ORIGINS.length)];
       const specialNeeds = Math.random() < 0.95 ? 'tidak' : 'ya';
 
-      // 1. Ability latent theta (mean 0.3, SD 0.7 - realistic human range)
+      // Ability latent theta (mean 0.3, SD 0.7 - realistic human range)
       const theta = randn_bm() * 0.7 + 0.3;
 
       console.log(`👤 [USER ${userIndexGlobal}/${totalTarget}] Memproses Responden SEORANG DIRI: ${name} (${gender}, ${campus})...`);
@@ -253,8 +251,8 @@ async function runBot() {
         const userId = authRes.userId;
         console.log(`  ✓ 1/4 Registrasi Profil Berhasil (User ID: ${userId})`);
 
-        // Jeda antarlangkah kecil (simulasi membaca soal 1-3 detik)
-        await sleep(1500);
+        // Jeda membaca & mengisi instrumen 1 (5 detik)
+        await sleep(5000);
 
         // STEP 2: Pengisian PDI-DL
         let totalPrelim = 0;
@@ -274,7 +272,8 @@ async function runBot() {
         });
         console.log(`  ✓ 2/4 Asesmen PDI-DL Terisi (Skor Total: ${totalPrelim})`);
 
-        await sleep(2000);
+        // Jeda membaca & mengisi instrumen 2 (8 detik)
+        await sleep(8000);
 
         // STEP 3: Pengisian MADEL5C
         let totalMadel = 0;
@@ -298,7 +297,8 @@ async function runBot() {
         });
         console.log(`  ✓ 3/4 Asesmen MADEL5C Terisi (Skor Total: ${totalMadel})`);
 
-        await sleep(2000);
+        // Jeda membaca & mengisi instrumen 3 (8 detik)
+        await sleep(8000);
 
         // STEP 4: Pengisian SUS (System Usability Scale)
         let susTotalRaw = 0;

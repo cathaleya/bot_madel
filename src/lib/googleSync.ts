@@ -20,12 +20,32 @@ export async function syncToGoogleSheets(data: {
     return;
   }
 
+  // Format answers array so each item is a raw number score (prevents [object Object] in Google Sheets)
+  let formattedAnswers = data.answers;
+  if (typeof formattedAnswers === 'string') {
+    try { formattedAnswers = JSON.parse(formattedAnswers); } catch (e) {}
+  }
+
+  if (Array.isArray(formattedAnswers)) {
+    formattedAnswers = formattedAnswers.map((item: any) => {
+      if (typeof item === 'object' && item !== null) {
+        return item.score !== undefined ? item.score : (item.val || item.value || JSON.stringify(item));
+      }
+      return item;
+    });
+  }
+
   try {
+    const payload = {
+      ...data,
+      answers: formattedAnswers
+    };
+
     const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-      mode: 'no-cors' // Google Apps Script requires no-cors for simple redirects
+      body: JSON.stringify(payload),
+      mode: 'no-cors'
     });
     console.log("Data synced to Google Sheets successfully.");
   } catch (error) {
